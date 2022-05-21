@@ -45,10 +45,10 @@ class DbService:
         self.pool = await create_pool()
 
     # @cached(TTLCache(10, ttl=2))
-    log('launching db request')
     async def get_all_persons(self) -> list[Person]:
-        log('connection obtained')
+        log('launching db request')
         async with self.pool.acquire() as c:
+            log('connection obtained')
             rows = await c.fetch('select * from s1.person order by id') # -> list[Record] -- wynik zapytania
         log('db access finished')
         return [Person(**d) for d in dicts(rows)]
