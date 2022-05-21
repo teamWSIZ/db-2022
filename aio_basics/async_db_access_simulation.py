@@ -7,8 +7,9 @@ from aio_basics.profile import log
 
 async def call_db(i):
     log(f'task{i} calling db')
-    await sleep(0.1 * randint(1,6))
+    await sleep(0.1 * randint(1, 6))
     log(f'task{i} db answer ready')
+
 
 async def foo(i):
     log(f'hello {i}')
@@ -25,5 +26,6 @@ async def run_it():
     await sleep(0.5)
     log('app ends')
 
+
 if __name__ == '__main__':
-    asyncio.run(run_it())   # "engine" asynchroniczny uruchamiany (even loop)
+    asyncio.run(run_it())  # "engine" asynchroniczny uruchamiany (even loop)

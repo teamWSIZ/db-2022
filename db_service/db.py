@@ -6,7 +6,7 @@ import asyncpg
 from asyncache import cached
 from cachetools import TTLCache
 
-from profile import log
+from aio_basics.profile import log
 
 DB_HOST = '10.10.0.33'
 DB_DB = 'student'
@@ -33,7 +33,6 @@ class Person:
 
 async def create_pool():
     log(f'creating pool for db:{DB_HOST}:5432, db={DB_DB}')
-
     pool = await asyncpg.create_pool(host=DB_HOST, port=5432, database=DB_DB, user=DB_USER, password=DB_PASS)
     log(f'pool created')
     return pool
@@ -46,9 +45,12 @@ class DbService:
         self.pool = await create_pool()
 
     # @cached(TTLCache(10, ttl=2))
-    async def get_all_persons(self) -> List[Person]:
+    log('launching db request')
+    async def get_all_persons(self) -> list[Person]:
+        log('connection obtained')
         async with self.pool.acquire() as c:
-            rows = await c.fetch('select * from s1.person order by id')
+            rows = await c.fetch('select * from s1.person order by id') # -> list[Record] -- wynik zapytania
+        log('db access finished')
         return [Person(**d) for d in dicts(rows)]
 
     async def update_person(self, person: Person):
