@@ -30,6 +30,19 @@ class Person:
     id: int
     name: str
 
+@dataclass
+class GPU:
+    id: int
+    producent: str
+    model: str
+    cena: float
+
+@dataclass
+class Country:
+    id: int
+    name: str
+    population: int
+
 
 async def create_pool():
     log(f'creating pool for db:{DB_HOST}:5432, db={DB_DB}')
@@ -52,6 +65,23 @@ class DbService:
             rows = await c.fetch('select * from s1.person order by id') # -> list[Record] -- wynik zapytania
         log('db access finished')
         return [Person(**d) for d in dicts(rows)]
+
+    async def get_person_count(self) -> int:
+        async with self.pool.acquire() as c:
+            n_persons = await c.fetchval("select count(*) from s1.person")
+        return n_persons
+
+    async def get_all_gpus(self) -> list[GPU]:
+        async with self.pool.acquire() as c:
+            rows = await c.fetch('select * from s1.karty_graficzne order by id')
+        return [GPU(**d) for d in dicts(rows)]
+
+    async def get_country_by_name(self, country_name: str) -> Country:
+        async with self.pool.acquire() as c:
+            row = await c.fetch('select * from s1.country where name=$1', country_name)
+        return Country(**dict(row[0]))
+
+
 
     async def update_person(self, person: Person):
         p = person  # alias
@@ -86,9 +116,17 @@ class DbService:
 async def run_it():
     db = DbService()
     await db.initalize()
-    persons = await db.get_all_persons()
-    for p in persons:
-        print(p)
+    # persons = await db.get_all_persons()
+    # for p in persons:
+    #     print(p)
+
+    print(await db.get_person_count())
+
+    for g in await db.get_all_gpus():
+        print(g.model)
+
+    print(await db.get_country_by_name('Ukraina'))
+
     # print(await db.create_person(Person(0, 'xiaoli')))
     # p = Person(3, 'xiaoli11')
     # print(await db.update_person(p))
