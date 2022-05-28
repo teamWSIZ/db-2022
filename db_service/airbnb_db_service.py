@@ -113,17 +113,18 @@ async def run_it():
 
     # u = await db.create_user(User(0, 'Wu'))
     # print(f'created user: {u}')
-    try:
-        await db.update_user(User(1, 'Xiao'))
-    except DataError as e:
-        print('ERROR:', e)
+    # try:
+    #     await db.update_user(User(1, 'Xiao'))
+    # except DataError as e:
+    #     print('ERROR:', e)
+    #
 
-    persons = await db.get_all_users()
-    # persons = await db.get_all_users()    # caching
-    # persons = await db.get_all_users()
-    for p in persons:
-        print(p)
-    await db.book_villa(3, 2)
+    users = await db.get_all_users()
+    users = await db.get_all_users()    # caching
+    users = await db.get_all_users()
+    for u in users:
+        print(u)
+    # await db.book_villa(3, 2)
     # await db.delete_user(1)
 
 
