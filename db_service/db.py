@@ -1,6 +1,5 @@
 import asyncio
 from dataclasses import dataclass
-from typing import List
 
 import asyncpg
 from asyncache import cached
@@ -81,8 +80,6 @@ class DbService:
             row = await c.fetch('select * from s1.country where name=$1', country_name)
         return Country(**dict(row[0]))
 
-
-
     async def update_person(self, person: Person):
         p = person  # alias
 
@@ -116,6 +113,7 @@ class DbService:
 async def run_it():
     db = DbService()
     await db.initalize()
+
     # persons = await db.get_all_persons()
     # for p in persons:
     #     print(p)
