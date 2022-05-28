@@ -94,6 +94,8 @@ class AirbnbDbService:
             log(f'Removed user {id}')
 
     # fixme: CRUD for villas, catch all errors
+    # CRUD -- Create Read Update Delete  (dla każdego typu danych)
+    # set / unset dla każdej relacji *:* (many-to-many)
 
     async def book_villa(self, uid: int, villaid: int):
         async with self.pool.acquire() as c:
