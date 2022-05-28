@@ -7,6 +7,7 @@ from asyncache import cached
 from cachetools import TTLCache
 
 from aio_basics.profile import log
+from db_service.utils import get_random_lastname
 
 DB_HOST = '10.10.0.33'
 DB_DB = 'student'
@@ -60,7 +61,7 @@ class AirbnbDbService:
         # fixme: list of selected id's?  await c.fetch('select * from airbnb.users where id = ANY ($1)', ids)
         log('getting users from db')
         async with self.pool.acquire() as c:
-            rows = await c.fetch('select * from airbnb.users')  # -> list[Record] -- wynik zapytania
+            rows = await c.fetch('select * from airbnb.users order by name')  # -> list[Record] -- wynik zapytania
         return [User(**d) for d in dicts(rows)]
 
     async def create_user(self, u: User) -> User:
@@ -97,34 +98,35 @@ class AirbnbDbService:
     # CRUD -- Create Read Update Delete  (dla każdego typu danych)
     # set / unset dla każdej relacji *:* (many-to-many)
 
-    async def book_villa(self, uid: int, villaid: int):
+    async def add_book_villa(self, uid: int, villaid: int):
         async with self.pool.acquire() as c:
             # ~~ sposoby reakcji na błędy związane z ograniczeniami na tabelach
             res = await c.fetch('''
                         INSERT INTO airbnb.uservillas(userid,villaid)
-                        VALUES ($1,$2) ON CONFLICT(userid) DO UPDATE set userid=$1''',
+                        VALUES ($1,$2)''',
                                 uid, villaid)
+            # ON CONFLICT(userid) DO UPDATE set userid=$1
         pass    # fixme: catch all errors
+
+
 
 
 async def run_it():
     db = AirbnbDbService()
     await db.initalize()
 
-    # u = await db.create_user(User(0, 'Wu'))
-    # print(f'created user: {u}')
-    # try:
-    #     await db.update_user(User(1, 'Xiao'))
-    # except DataError as e:
-    #     print('ERROR:', e)
-    #
+    # u = await db.create_user(User(0, get_random_lastname()))
 
-    users = await db.get_all_users()
-    users = await db.get_all_users()    # caching
+    try:
+        await db.update_user(User(13, 'Xiao!!'))
+    except DataError as e:
+        print('ERROR:', e)
+
     users = await db.get_all_users()
     for u in users:
         print(u)
-    # await db.book_villa(3, 2)
+
+    # await db.add_book_villa(3, 2)
     # await db.delete_user(1)
 
 
