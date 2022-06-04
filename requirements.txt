@@ -3,3 +3,8 @@ asyncache
 cachetools
 
 Faker
+
+# migration versioning
+alembic
+psycopg2
+sqlalchemy
