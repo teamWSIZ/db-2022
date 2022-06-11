@@ -1,0 +1,1 @@
+## TEN FOLDER POWINIEN ZAWSZE ZOSTAĆ W .gitignore

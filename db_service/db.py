@@ -7,10 +7,7 @@ from cachetools import TTLCache
 
 from aio_basics.profile import log
 
-DB_HOST = '10.10.0.33'
-DB_DB = 'student'
-DB_USER = 'student'
-DB_PASS = 'wsiz#1234'
+from config import *
 
 
 def dicts(rows):
@@ -29,12 +26,14 @@ class Person:
     id: int
     name: str
 
+
 @dataclass
 class GPU:
     id: int
     producent: str
     model: str
     cena: float
+
 
 @dataclass
 class Country:
@@ -44,8 +43,9 @@ class Country:
 
 
 async def create_pool():
-    log(f'creating pool for db:{DB_HOST}:5432, db={DB_DB}')
-    pool = await asyncpg.create_pool(host=DB_HOST, port=5432, database=DB_DB, user=DB_USER, password=DB_PASS)
+    port = int(APP_PORT)
+    log(f'creating pool for db:{DB_HOST}:{port}, db={DB_DB}')
+    pool = await asyncpg.create_pool(host=DB_HOST, port=DB_PORT, database=DB_DB, user=DB_USER, password=DB_PASS)
     log(f'pool created')
     return pool
 
@@ -61,7 +61,7 @@ class DbService:
         log('launching db request')
         async with self.pool.acquire() as c:
             log('connection obtained')
-            rows = await c.fetch('select * from s1.person order by id') # -> list[Record] -- wynik zapytania
+            rows = await c.fetch('select * from s1.person order by id')  # -> list[Record] -- wynik zapytania
         log('db access finished')
         return [Person(**d) for d in dicts(rows)]
 

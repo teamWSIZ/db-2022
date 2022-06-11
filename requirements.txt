@@ -8,3 +8,8 @@ Faker
 alembic
 psycopg2
 sqlalchemy
+
+# http controller
+
+aiohttp
+aiohttp-cors
