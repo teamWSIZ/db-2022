@@ -7,12 +7,9 @@ from asyncache import cached
 from cachetools import TTLCache
 
 from aio_basics.profile import log
+from config import *
 from db_service.utils import get_random_lastname
 
-DB_HOST = '10.10.0.33'
-DB_DB = 'student'
-DB_USER = 'student'
-DB_PASS = 'wsiz#1234'
 
 
 def dicts(rows):
@@ -43,8 +40,8 @@ class DataError(RuntimeError):
 
 
 async def create_pool():
-    log(f'creating pool for db:{DB_HOST}:5432, db={DB_DB}')
-    pool = await asyncpg.create_pool(host=DB_HOST, port=5432, database=DB_DB, user=DB_USER, password=DB_PASS)
+    log(f'creating pool for db:{DB_HOST}:{DB_PORT}, db={DB_DB}')
+    pool = await asyncpg.create_pool(host=DB_HOST, port=DB_PORT, database=DB_DB, user=DB_USER, password=DB_PASS)
     log(f'pool created')
     return pool
 
@@ -61,13 +58,13 @@ class AirbnbDbService:
         # fixme: list of selected id's?  await c.fetch('select * from airbnb.users where id = ANY ($1)', ids)
         log('getting users from db')
         async with self.pool.acquire() as c:
-            rows = await c.fetch('select * from airbnb.users order by name')  # -> list[Record] -- wynik zapytania
+            rows = await c.fetch('select * from users order by name')  # -> list[Record] -- wynik zapytania
         return [User(**d) for d in dicts(rows)]
 
     async def create_user(self, u: User) -> User:
         async with self.pool.acquire() as c:
             res = await c.fetch('''
-                        INSERT INTO airbnb.users(name)
+                        INSERT INTO users(name)
                         VALUES ($1) RETURNING *''',
                                 u.name)
             d = dict(res[0])
@@ -77,7 +74,7 @@ class AirbnbDbService:
         async with self.pool.acquire() as c:
             try:
                 res = await c.fetch('''
-                                UPDATE airbnb.users
+                                UPDATE users
                                 SET name=$2
                                 WHERE id = $1
                                 RETURNING *''', u.id, u.name)
@@ -89,7 +86,7 @@ class AirbnbDbService:
     async def delete_user(self, id: int):
         async with self.pool.acquire() as c:
             await c.execute('''
-                            DELETE FROM airbnb.users
+                            DELETE FROM users
                             WHERE id = $1
                             ''', id)
             log(f'Removed user {id}')
@@ -102,7 +99,7 @@ class AirbnbDbService:
         async with self.pool.acquire() as c:
             # ~~ sposoby reakcji na błędy związane z ograniczeniami na tabelach
             res = await c.fetch('''
-                        INSERT INTO airbnb.uservillas(userid,villaid)
+                        INSERT INTO uservillas(userid, villaid)
                         VALUES ($1,$2)''',
                                 uid, villaid)
             # ON CONFLICT(userid) DO UPDATE set userid=$1

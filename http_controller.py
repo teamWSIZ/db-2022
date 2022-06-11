@@ -3,7 +3,7 @@ from aiohttp import web, ClientSession
 from aiohttp.abc import BaseRequest
 
 from config import APP_PORT
-from db_service.airbnb_db_service import User
+from db_service.airbnb_db_service import User, AirbnbDbService
 from db_service.db import DbService
 from util import log, answer
 
@@ -19,11 +19,25 @@ async def hello(req: BaseRequest):
     return answer(f'OK')
 
 
+@routes.get('/')
+async def rootpath(req: BaseRequest):
+    return answer('db app is working fine')
+
+
+@routes.get('/add')
+async def add_numbers(req: BaseRequest):
+    a = float(req.rel_url.query['a'])
+    b = float(req.rel_url.query['b'])
+    res = a + b
+
+    return web.json_response({"result": res})
+
+
 # ### Working with data
 
-@routes.get('/persons')
+@routes.get('/users')
 async def get_all_persons(req):
-    return web.json_response([i.__dict__ for i in await db().get_all_persons()])
+    return web.json_response([i.__dict__ for i in await db().get_all_users()])
 
 
 @routes.post('/post')
@@ -71,7 +85,7 @@ for route in list(app.router.routes()):
 
 async def pre_init():
     print('App initialization..')
-    app['db'] = DbService()
+    app['db'] = AirbnbDbService()
     await db().initalize()
     app['http'] = ClientSession()
     log('App initalization complete')

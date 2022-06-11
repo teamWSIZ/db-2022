@@ -21,7 +21,7 @@ def dicts(rows):
 
 
 @dataclass
-class Person:
+class User:
     # przykład klasy danych odpowiadającej tabeli na bazie
     id: int
     name: str
@@ -57,13 +57,13 @@ class DbService:
         self.pool = await create_pool()
 
     # @cached(TTLCache(10, ttl=2))
-    async def get_all_persons(self) -> list[Person]:
+    async def get_all_users(self) -> list[User]:
         log('launching db request')
         async with self.pool.acquire() as c:
             log('connection obtained')
-            rows = await c.fetch('select * from s1.person order by id')  # -> list[Record] -- wynik zapytania
+            rows = await c.fetch('select * from users order by id')  # -> list[Record] -- wynik zapytania
         log('db access finished')
-        return [Person(**d) for d in dicts(rows)]
+        return [User(**d) for d in dicts(rows)]
 
     async def get_person_count(self) -> int:
         async with self.pool.acquire() as c:
@@ -80,7 +80,7 @@ class DbService:
             row = await c.fetch('select * from s1.country where name=$1', country_name)
         return Country(**dict(row[0]))
 
-    async def update_person(self, person: Person):
+    async def update_person(self, person: User):
         p = person  # alias
 
         async with self.pool.acquire() as c:
@@ -90,7 +90,7 @@ class DbService:
                             WHERE id = $1
                             RETURNING *''', p.id, p.name)
             d = dict(res[0])
-            return Person(**d)
+            return User(**d)
 
     async def delete_person(self, id: int):
         async with self.pool.acquire() as c:
@@ -99,7 +99,7 @@ class DbService:
                             WHERE id = $1
                             ''', id)
 
-    async def create_person(self, person: Person) -> Person:
+    async def create_person(self, person: User) -> User:
         p = person
         async with self.pool.acquire() as c:
             res = await c.fetch('''
@@ -107,14 +107,14 @@ class DbService:
                         VALUES ($1) RETURNING *''',
                                 p.name)
             d = dict(res[0])
-            return Person(**d)
+            return User(**d)
 
 
 async def run_it():
     db = DbService()
     await db.initalize()
 
-    # persons = await db.get_all_persons()
+    # persons = await db.get_all_users()
     # for p in persons:
     #     print(p)
 
