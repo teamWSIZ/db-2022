@@ -11,7 +11,6 @@ from config import *
 from db_service.utils import get_random_lastname
 
 
-
 def dicts(rows):
     """
     Convert DB-rows to dictionaries.
@@ -95,17 +94,32 @@ class AirbnbDbService:
     # CRUD -- Create Read Update Delete  (dla każdego typu danych)
     # set / unset dla każdej relacji *:* (many-to-many)
 
-    async def add_book_villa(self, uid: int, villaid: int):
+    async def add_book_villa(self, uid: int, villaid: int) -> bool:
         async with self.pool.acquire() as c:
             # ~~ sposoby reakcji na błędy związane z ograniczeniami na tabelach
-            res = await c.fetch('''
-                        INSERT INTO uservillas(userid, villaid)
-                        VALUES ($1,$2)''',
-                                uid, villaid)
-            # ON CONFLICT(userid) DO UPDATE set userid=$1
-        pass    # fixme: catch all errors
+            try:
+                res = await c.fetch('''
+                            INSERT INTO uservillas(userid, villaid)
+                            VALUES ($1,$2)''',
+                                    uid, villaid)
+                # ON CONFLICT(userid) DO UPDATE set userid=$1
+                return True
+            except RuntimeError:
+                log(f'Error assigning userid {uid} to villaid {villaid}')
+                return False
 
-
+    async def del_book_villa(self, uid: int, villaid: int) -> bool:
+        async with self.pool.acquire() as c:
+            # ~~ sposoby reakcji na błędy związane z ograniczeniami na tabelach
+            try:
+                res = await c.fetch('''
+                            DELETE FROM uservillas
+                            WHERE userid=$1 AND villaid=$2''', uid, villaid)
+                # ON CONFLICT(userid) DO UPDATE set userid=$1
+                return True
+            except RuntimeError:
+                log(f'Error unassigning userid {uid} to villaid {villaid}')
+                return False
 
 
 async def run_it():

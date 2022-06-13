@@ -33,6 +33,38 @@ async def add_numbers(req: BaseRequest):
     return web.json_response({"result": res})
 
 
+@routes.get('/adduser')  # .post('/users') ... body ... json ... z danymi usera
+async def add_numbers(req: BaseRequest):
+    username = req.rel_url.query['name']
+    ok = await db().create_user(User(0, username))
+    if ok:
+        return web.json_response({"result": 'OK'})
+    else:
+        return answer('Error creating user', status=500)
+
+
+@routes.get('/users/{userid}/villas/{villaid}/assign')
+async def assign_villa_to_user(req: BaseRequest):
+    userid = int(req.match_info['userid'])
+    villaid = int(req.match_info['villaid'])
+    ok = await db().add_book_villa(userid, villaid)
+    if ok:
+        return web.json_response({"result": 'OK'})
+    else:
+        return web.json_response({"result": 'DB error'}, status=500)
+
+
+@routes.get('/users/{userid}/villas/{villaid}/unassign')
+async def assign_villa_to_user(req: BaseRequest):
+    userid = int(req.match_info['userid'])
+    villaid = int(req.match_info['villaid'])
+    ok = await db().del_book_villa(userid, villaid)
+    if ok:
+        return web.json_response({"result": 'OK'})
+    else:
+        return web.json_response({"result": 'DB error'}, status=500)
+
+
 # ### Working with data
 
 @routes.get('/users')
@@ -63,7 +95,7 @@ def session() -> ClientSession:
     return app['http']
 
 
-def db() -> DbService:
+def db() -> AirbnbDbService:
     return app['db']
 
 
