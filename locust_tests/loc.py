@@ -18,9 +18,10 @@ class QuickstartUser(FastHttpUser):
     @task(5)
     def create_user(self):
         f = Faker()
-        username = f.name()
-        #fixme -- pass url params, but so that all these queries are aggregated on locust chart
-        self.client.get(f'/adduser', name=username)
+        username = f.name().split()[1]
+        # uruchomienie requestu typu GET, z parametrem; by w statystykach wszystko bylo zagregowane, ustawiamy
+        # dodatkowy argument `name` (niestety o tej samej nazwie co parametr, ale /shrug)
+        self.client.get(f'/adduser?name={username}', name='/adduser')
 
     #
     # @task(1)
