@@ -6,8 +6,6 @@ from faker import Faker
 from locust import HttpUser, task, between, FastHttpUser
 
 
-
-
 class QuickstartUser(FastHttpUser):
     wait_time = between(0.001, 0.002)
 

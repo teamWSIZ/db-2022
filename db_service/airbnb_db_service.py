@@ -121,25 +121,27 @@ class AirbnbDbService:
                 log(f'Error unassigning userid {uid} to villaid {villaid}')
                 return False
 
+    async def tx_test(self):
+        async with self.pool.acquire() as c:
+            async with c.transaction():
+                print('txid: ', await c.fetchval('select txid_current()'))
+                print('count: ', await c.fetch('select count(*), txid_current()  from users'))
+                uid = await c.fetchval('insert into users(name) values ($1) returning id', 'Kadabra')
+                await self.create_user(User(0, 'Karramba'))
+                input(f'proceed (uid={uid})? >')
+                print('count: ', await c.fetch('select count(*), txid_current()  from users'))
+                print('txid: ', await c.fetchval('select txid_current()'))
+                print('commiting transaction')
 
-async def run_it():
-    db = AirbnbDbService()
-    await db.initalize()
-
-    # u = await db.create_user(User(0, get_random_lastname()))
-
-    try:
-        await db.update_user(User(13, 'Xiao!!'))
-    except DataError as e:
-        print('ERROR:', e)
-
-    users = await db.get_all_users()
-    for u in users:
-        print(u)
-
-    # await db.add_book_villa(3, 2)
-    # await db.delete_user(1)
-
-
-if __name__ == '__main__':
-    asyncio.run(run_it())
+    async def tx_test_x(self):
+        async with self.pool.acquire() as c:
+            async with c.transaction():
+                print('txid: ', await c.fetchval('select txid_current()'))
+                # print(f'current tx:{await c.fetchval("select txid_current()")}')
+                # print('users in db:', await c.fetchval('select count(*) from users'))
+                # uid = await c.fetchval('insert into users(name) values ($1) returning id', 'Kadabra')
+                # print(f'id={uid}')
+                # print(await c.fetchval('select txid_current()'))
+                # print('users in db:', await c.fetchval('select count(*) from users'))
+                # input(f'proceed? tx:{await c.fetchval("select txid_current()")}')
+                # raise RuntimeError('ha ha ha')
