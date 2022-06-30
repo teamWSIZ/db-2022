@@ -11,7 +11,7 @@ PATH = f'/run/secrets'
 # todo: adjust for your development environment; must contain proper docker secrets
 if path.exists('local'):
     print('using local db-connection parameters')
-    PATH = 'local'
+    PATH = 'local/nfj'
 
 
 def read_secret(name: str) -> str:
