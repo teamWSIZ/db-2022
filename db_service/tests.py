@@ -4,12 +4,13 @@ from db_service.airbnb_db_service import AirbnbDbService, User
 
 
 class AirbnbDbTests(unittest.IsolatedAsyncioTestCase):
+    TESTUSERNAME = 'Wu'
 
     # @unittest.skip('--')
     async def test_create_user(self):
         db = AirbnbDbService()
         await db.initalize()
-        u = await db.create_user(User(0, 'Wu'))
+        u = await db.create_user(User(0, self.TESTUSERNAME))
         assert u.id > 0
 
     async def test_create_remove_user(self):
