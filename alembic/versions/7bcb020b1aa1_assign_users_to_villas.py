@@ -16,7 +16,7 @@ depends_on = None
 
 
 def upgrade():
-    if not context.get_x_argument(as_dictionary=True).get('prod', False):
+    if context.get_x_argument(as_dictionary=True).get('prod', True):
         data_upgrade()
 
 
