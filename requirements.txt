@@ -14,5 +14,8 @@ sqlalchemy
 aiohttp
 aiohttp-cors
 
+# redis (nosql) DB
+aioredis
+
 
 #pip install locust      #for locust tests
