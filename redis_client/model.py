@@ -9,6 +9,12 @@ class User:
     passwd: str
 
 
+@dataclass
+class Election:
+    eid: int
+    name: str
+
+
 def testy():
     u = User(1, 'Czesław Szczęsny', passwd='11-22-33-11')
     d = u.__dict__
