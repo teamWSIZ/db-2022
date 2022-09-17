@@ -36,7 +36,7 @@ async def main():
     print(gamers)
     for g in gamers:
         print(g.decode())
-    await go_fast(redis, 1000)
+    await go_fast(redis, 100)
 
 
 if __name__ == "__main__":
